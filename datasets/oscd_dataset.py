@@ -24,10 +24,18 @@ QUANTILES = {
 
 
 def read_image(path, bands, normalize=True):
-    patch_id = next(path.iterdir()).name[:-8]
+    """
+    Return:
+        PIL.Image object with the bands stacked
+    """
+    patch_id = next(path.iterdir()).name[:-8]  # 8 is the length of "_B02.tif"
+                                               # so that patch_id is the common
+                                               # prefix of all 13 tiff files,
+                                               # such as for example
+                                               # S2A_OPER_MSI_L1C_TL_EPA__20160706T155721_A000849_T30TXT
     channels = []
     for b in bands:
-        ch = rasterio.open(path / f'{patch_id}_{b}.tif').read(1)
+        ch = rasterio.open(path / f'{patch_id}_{b}.tif').read(1)  # image file is opened and never closed...
         if normalize:
             min_v = QUANTILES['min_q'][b]
             max_v = QUANTILES['max_q'][b]
@@ -60,9 +68,9 @@ class ChangeDetectionDataset(Dataset):
                 self.samples.append((self.root / name, (l[0], l[1], l[0] + patch_size, l[1] + patch_size)))
 
     def __getitem__(self, index):
-        path, limits = self.samples[index]
+        path, limits = self.samples[index]  # limits is actually a kind of rasterio Window
 
-        img_1 = read_image(path / 'imgs_1', self.bands)
+        img_1 = read_image(path / 'imgs_1', self.bands)  # the images are re-read from disk for each crop
         img_2 = read_image(path / 'imgs_2', self.bands)
         cm = Image.open(path / 'cm' / 'cm.png').convert('L')
 
