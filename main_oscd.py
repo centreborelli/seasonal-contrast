@@ -107,3 +107,4 @@ if __name__ == '__main__':
     checkpoint_callback = ModelCheckpoint(filename='{epoch}', save_weights_only=True)
     trainer = Trainer(gpus=args.gpus, logger=logger, callbacks=[checkpoint_callback], max_epochs=100, weights_summary='full')
     trainer.fit(model, datamodule=datamodule)
+    trainer.save_checkpoint("oscd_model.ckpt")
