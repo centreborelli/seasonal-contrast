@@ -81,10 +81,11 @@ if __name__ == '__main__':
 
     parser = ArgumentParser()
     parser.add_argument('--gpus', type=int, default=1)
-    parser.add_argument('--data_dir', type=str)
-    parser.add_argument('--patch_size', type=int, default=96)
-    parser.add_argument('--backbone_type', type=str, default='imagenet')
-    parser.add_argument('--ckpt_path', type=str, default=None)
+    parser.add_argument('--data-dir', type=str)
+    parser.add_argument('--patch-size', type=int, default=96)
+    parser.add_argument('--backbone-type', type=str, default='imagenet')
+    parser.add_argument('--in-ckpt-path', type=str, default=None)
+    parser.add_argument('--out-ckpt-path', type=str, default=None)
     args = parser.parse_args()
 
     datamodule = ChangeDetectionDataModule(args.data_dir)
@@ -94,7 +95,7 @@ if __name__ == '__main__':
     elif args.backbone_type == 'imagenet':
         backbone = resnet.resnet18(pretrained=True)
     elif args.backbone_type == 'pretrain':
-        model = MocoV2.load_from_checkpoint(args.ckpt_path)
+        model = MocoV2.load_from_checkpoint(args.in_ckpt_path)
         backbone = deepcopy(model.encoder_q)
     else:
         raise ValueError()
@@ -107,4 +108,6 @@ if __name__ == '__main__':
     checkpoint_callback = ModelCheckpoint(filename='{epoch}', save_weights_only=True)
     trainer = Trainer(gpus=args.gpus, logger=logger, callbacks=[checkpoint_callback], max_epochs=100, weights_summary='full')
     trainer.fit(model, datamodule=datamodule)
-    trainer.save_checkpoint("oscd_model.ckpt")
+
+    if args.out_ckpt_path:
+        trainer.save_checkpoint(args.out_ckpt_path)
