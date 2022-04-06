@@ -20,6 +20,7 @@ class SiamSegment(LightningModule):
 
     def __init__(self, backbone, feature_indices, feature_channels):
         super().__init__()
+        self.save_hyperparameters()
         self.model = get_segmentation_model(backbone, feature_indices, feature_channels)
         self.criterion = BCEWithLogitsLoss()
         self.prec = Precision(num_classes=1, threshold=0.5)
