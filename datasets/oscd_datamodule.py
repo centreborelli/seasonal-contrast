@@ -86,7 +86,7 @@ class ChangeDetectionDataModule(LightningDataModule):
         return DataLoader(
             self.val_dataset,
             batch_size=32,
-            shuffle=True,
+            shuffle=False,
             num_workers=8,
             drop_last=True,
             pin_memory=True
